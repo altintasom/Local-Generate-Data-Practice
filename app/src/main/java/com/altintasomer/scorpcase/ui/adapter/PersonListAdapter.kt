@@ -34,6 +34,7 @@ class PersonListAdapter : RecyclerView.Adapter<PersonListAdapter.PersonListViewH
     private val differ = AsyncListDiffer(this, differCallback)
 
 
+    @SuppressLint("NotifyDataSetChanged")
     fun updateList(personList: List<Person>?) {
         differ.submitList(personList)
         notifyDataSetChanged()

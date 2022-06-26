@@ -9,10 +9,9 @@ import kotlin.math.log
 
 private const val TAG = "PaginationScrollListene"
 
-abstract class PaginationScrollListener(private val layoutManager: GridLayoutManager) :
+abstract class PaginationScrollListener(private val layoutManager: LinearLayoutManager, private val onScroll : (isScrolling: Boolean) -> Unit) :
     RecyclerView.OnScrollListener() {
 
-    var isScrolling = false
     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
         super.onScrolled(recyclerView, dx, dy)
 
@@ -22,7 +21,9 @@ abstract class PaginationScrollListener(private val layoutManager: GridLayoutMan
     override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
         super.onScrollStateChanged(recyclerView, newState)
         if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
-            isScrolling = true
+            onScroll(true)
+        }else{
+            onScroll(false)
         }
         val visibleItemCount = layoutManager.childCount
         val totalItemCount = layoutManager.itemCount

@@ -70,10 +70,12 @@ class ListViewModel @Inject constructor(private val dataSource: DataSource) : Vi
 
 
     fun swipeRefresh() {
-        readyPersonList.clear()
-        next = null
-        _isLastPage = false
-        initializeData()
+        if (!_isLoading){
+            readyPersonList.clear()
+            next = null
+            _isLastPage = false
+            initializeData()
+        }
     }
 
     private fun initializeData() {

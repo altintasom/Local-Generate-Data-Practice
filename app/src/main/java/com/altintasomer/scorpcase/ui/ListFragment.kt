@@ -7,9 +7,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Adapter
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.altintasomer.scorpcase.R
 import com.altintasomer.scorpcase.databinding.FragmentListBinding
 import com.altintasomer.scorpcase.ui.adapter.PersonListAdapter
@@ -27,12 +29,14 @@ class ListFragment : Fragment(R.layout.fragment_list) {
     private lateinit var binding: FragmentListBinding
 
     private val viewModel: ListViewModel by viewModels()
-    private lateinit var gridLayoutManager: GridLayoutManager
+    private lateinit var linearLayoutManager: LinearLayoutManager
+    private lateinit var snackbar: Snackbar
 
     private lateinit var personListAdapter: PersonListAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         personListAdapter = PersonListAdapter()
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -42,16 +46,22 @@ class ListFragment : Fragment(R.layout.fragment_list) {
 
     private fun init(view: View) {
         binding = FragmentListBinding.bind(view)
-        gridLayoutManager =
-            GridLayoutManager(requireContext(), 1, GridLayoutManager.VERTICAL, false)
+        snackbar = Snackbar.make(binding.main, "End of the list", Snackbar.LENGTH_LONG)
+        linearLayoutManager =LinearLayoutManager(requireContext())
+
         binding.rvList.apply {
             adapter = personListAdapter
-            layoutManager = gridLayoutManager
-            setHasFixedSize(true)
-        }.addOnScrollListener(object : PaginationScrollListener(gridLayoutManager) {
+            layoutManager = linearLayoutManager
+        }.addOnScrollListener(object : PaginationScrollListener(linearLayoutManager, { isScrolling ->
+            viewModel.isScrolling = isScrolling
+
+        }) {
             override fun loadMoreItems() {
-                if (viewModel.isLastPage)
+
+                if (viewModel.isLastPage){
                     showSnackBar()
+                    if (viewModel.isScrolling) showSnackBar().dismiss()
+                }
                 else
                     viewModel.getPerson()
             }
@@ -92,6 +102,7 @@ class ListFragment : Fragment(R.layout.fragment_list) {
         }
 
         binding.swipeList.setOnRefreshListener {
+            linearLayoutManager.scrollToPosition(0)
             viewModel.swipeRefresh()
             binding.swipeList.isRefreshing = false
         }
@@ -99,15 +110,14 @@ class ListFragment : Fragment(R.layout.fragment_list) {
 
     }
 
-    private fun showSnackBar() {
-        val snackbar = Snackbar.make(binding.main, "End of the list", Snackbar.LENGTH_LONG)
-
-        snackbar.setAction("Refresh") {
-            viewModel.swipeRefresh()
-            snackbar.dismiss()
-        }
-        snackbar.show()
-
+    private fun showSnackBar() : Snackbar {
+            snackbar.setAction("Refresh") {
+                linearLayoutManager.scrollToPosition(0)
+                viewModel.swipeRefresh()
+                snackbar.dismiss()
+            }
+            snackbar.show()
+        return snackbar
     }
 
 

@@ -35,6 +35,8 @@ class ListViewModel @Inject constructor(private val dataSource: DataSource) : Vi
     private var _isLastPage = false
     val isLastPage get() = _isLastPage
 
+    var isScrolling = false
+
     private val fetchCompletionHandler: FetchCompletionHandler = { fetchResponse, fetchError ->
         _isLoading = false
         fetchResponse?.let { it ->

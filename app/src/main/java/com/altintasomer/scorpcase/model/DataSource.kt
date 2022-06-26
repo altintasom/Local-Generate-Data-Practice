@@ -1,11 +1,12 @@
 package com.altintasomer.scorpcase.model
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import kotlin.collections.ArrayList
 import kotlin.math.min
 import kotlin.random.Random
 
-
+private const val TAG = "DataSource"
 data class Person(val id: Int, val fullName: String)
 
 data class FetchResponse(val people: List<Person>, val next: String?)
